@@ -5,23 +5,23 @@ import collections, itertools
 with open("i12.txt") as f:
     lines: List[str] = f.readlines()
 
-# test - results in 325
-lines = ["initial state: #..#.#..##......###...###",
-"",
-"...## => #",
-"..#.. => #",
-".#... => #",
-".#.#. => #",
-".#.## => #",
-".##.. => #",
-".#### => #",
-"#.#.# => #",
-"#.### => #",
-"##.#. => #",
-"##.## => #",
-"###.. => #",
-"###.# => #",
-"####. => #"]
+# # test - results in 325
+# lines = ["initial state: #..#.#..##......###...###",
+# "",
+# "...## => #",
+# "..#.. => #",
+# ".#... => #",
+# ".#.#. => #",
+# ".#.## => #",
+# ".##.. => #",
+# ".#### => #",
+# "#.#.# => #",
+# "#.### => #",
+# "##.#. => #",
+# "##.## => #",
+# "###.. => #",
+# "###.# => #",
+# "####. => #"]
 
 def extend_state(state: collections.deque) -> Tuple[int, collections.deque]:
     found = False
@@ -34,7 +34,7 @@ def extend_state(state: collections.deque) -> Tuple[int, collections.deque]:
             break
     if found:
         offset = 5-ind        
-        state.appendleft("." for _ in range(offset))
+        state.extendleft("." for _ in range(offset))
     found = False
     ind = 0
     sl = len(state)
@@ -56,20 +56,7 @@ def get_result(pattern: List[str], rules: Dict[str, str]) -> str:
 
 
 def get_state(i, state, rules):
-    if i == 0:
-        pattern = [".", "."]
-        pattern.extend(itertools.islice(state, 0, 3))
-    elif i == 1:
-        pattern = ["."]
-        pattern.extend(itertools.islice(state, 0, 4))
-    elif i == len(state) - 1:
-        pattern = list(itertools.islice(state, -3, None))
-        pattern.extend([".", "."])
-    elif i == len(state) - 2:
-        pattern = list(itertools.islice(state, -4, None))
-        pattern.append(".")
-    else:
-        pattern = itertools.islice(state, i-2, i+3)
+    pattern = list(itertools.islice(state, i-2, i+3))
     return get_result(pattern, rules)
 
 
@@ -77,16 +64,16 @@ start = lines[0].split(":")[1].strip()
 state = collections.deque(list(start))
 rules = {l[0:5]:l[9] for l in lines[2:]}
 
-iters = 20
+iters = 110
 offset = 0
-for _ in range(1, iters+1):    
+for i in range(1, iters+1): 
     o, state = extend_state(state)
     offset -= o
-    new_state = []
-    for i in range(len(state)):
-        new_state.append(get_state(i, state, rules))
-        # print(new_state[i], end='')    
-    # print("")
+    new_state = state.copy()
+    for i in range(3, len(state)-3):
+        new_state[i] = get_state(i, state, rules)
+        print(new_state[i], end='')    
+    print("")
     state = new_state
 res = sum(0 if state[i] == "." else i+offset for i in range(len(state)))
 print(res)
