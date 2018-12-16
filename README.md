@@ -1,0 +1,1 @@
+Just my solutions to advent of code 2018 - for as long as I can find time solving them.
