@@ -6,24 +6,15 @@ def cell_value(x, y, serial_num):
     return int((n % 1000) / 100) - 5
 
 
-def square_value(x, y, size, cells):
-    return sum (cells[a, b] for a in range(x, x + size) for b in range(y, y + size))
-
-
 def get_cells(serial_num):
     return {(x, y): cell_value(x, y, serial_num) for y in range(1, grid_size+1) for x in range(1, grid_size+1)}
 
 
-def get_max_cell(size, cells):    
-    squares = {(x, y): square_value(x, y, size, cells) for y in range(1, grid_size+2-size) 
-        for x in range(1, grid_size+2-size)}
-    max_coords = max(squares, key=lambda s: squares[s])
-    return max_coords, squares[max_coords]
-
-
 def square_value_with_prev(x, y, size, cells, prev):
-    return prev[(x, y)] + sum([cells[(size, y)] for y in range(1, size+1)]) + sum([cells[x, size] 
-        for x in range(1, size)])
+    p = prev[(x, y)]
+    sy = sum([cells[(x+size-1, y)] for y in range(y, y+size)])
+    sx = sum([cells[(x, y+size-1)] for x in range(x, x+size-1)])
+    return p + sy + sx
     
 
 def get_max_cell_with_prev(size, cells, prev):
@@ -31,6 +22,13 @@ def get_max_cell_with_prev(size, cells, prev):
     squares = {(x, y): square_value_with_prev(x, y, size, cells, prev) for y in range(1, grid_size+2-size) 
         for x in range(1, grid_size+2-size)}    
     return squares
+
+
+def print_grid(cells, size):
+    for y in range(1, grid_size+2-size):
+        for x in range(1, grid_size+2-size):
+            print("{:3d} ".format(cells[(x, y)]), end="")
+        print("")
 
 # test case - expected 29 with (33,45)
 c = get_cells(18)
@@ -42,22 +40,25 @@ max_val = prev[max_coords]
 assert max_val == 29
 assert max_coords == (33, 45)
 
-# prev = c
-# for i in range(2, 4):
-#     max_coords, prev = get_max_cell_with_prev(i, c, prev)
-#     print((max_coords, prev[max_coords]))
 
+c = get_cells(9110)
+# part1
+prev = c
+for i in range(2, 4):
+    prev = get_max_cell_with_prev(i, c, prev)
+max_coords = max(prev, key=lambda s: prev[s])      
+print((max_coords, prev[max_coords]))
 
-# c = get_cells(9110)
-# # part1
-# print(get_max_cell(3, c))
-
-# prev = c
-# for i in range(2, 4):
-#     max_coords, prev = get_max_cell_with_prev(i, c, prev)
-#     print((max_coords, prev[max_coords]))
-
-# # part2
-# # per_size = [get_max_cell(s, c) for s in range(1, 300)]
-# # max_size = max(per_size, key=lambda e: per_size[e][1])
-# # print("Best size: {} with {}", max_size+1, per_size[max_size])
+# part2
+prev = c
+max_val = -300*300*10 # must be less then min possible value
+max_size = 0
+for i in range(2, 301):
+    prev = get_max_cell_with_prev(i, c, prev)
+    coords = max(prev, key=lambda s: prev[s])
+    val = prev[coords]
+    if val > max_val:
+        max_val = val
+        max_coords = coords
+        max_size = i
+print(max_size, max_coords, max_val)
