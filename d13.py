@@ -4,7 +4,7 @@ from typing import List, Dict, Tuple
 with open("i13.txt") as f:
     lines: List[str] = f.readlines()
 
-# # test - results in 
+# # test - part1
 # lines = [
 # "/->-\        ",
 # "|   |  /----\\",
@@ -12,6 +12,16 @@ with open("i13.txt") as f:
 # "| | |  | v  |",
 # "\-+-/  \-+--/",
 # "  \------/   "]
+
+# # test - part 2
+# lines = [
+# "/>-<\  ",
+# "|   |  ",
+# "| /<+-\\",
+# "| | | v",
+# "\>+</ |",
+# "  |   ^",
+# "  \<->/"]
 
 class Pos:
     def __init__(self, x, y):
@@ -120,15 +130,18 @@ def print_map(m: List[List[str]], carts: List[Cart]):
     print()
 
 
-def detect_crash(m: List[List[str]], carts: List[Cart]) -> Pos:
+def detect_crash(m: List[List[str]], carts: List[Cart], stop_on_first: bool) -> Pos:
     for cart in carts:
         m[cart.pos.y][cart.pos.x] = "-" if cart.direction in ["<", ">"] else "|"
     # print_map(m, carts)
     time = 0        
     while True:
+        to_remove = []
         time += 1
-        carts.sort(key=lambda c: (c.pos.x, c.pos.y))
+        carts.sort(key=lambda c: (c.pos.y, c.pos.x))
         for c in carts:
+            if c in to_remove:
+                continue
             if c.direction == ">":
                 if m[c.pos.y][c.pos.x] == "-":                
                     c.move_right()
@@ -169,14 +182,28 @@ def detect_crash(m: List[List[str]], carts: List[Cart]) -> Pos:
                 if other == c:
                     continue
                 if other.pos.equal(c.pos):
-                    return c.pos, time    
-        # print_map(m, carts)                            
+                    if stop_on_first:
+                        return c.pos, time
+                    to_remove.append(c)
+                    to_remove.append(other)                    
+                    break
+        for c in to_remove:
+            carts.remove(c)        
+        # print_map(m, carts)
+        if len(carts) == 1:
+            return carts[0].pos, time                            
 
     return None
 
 
 # part1
+# m = [list(line) for line in lines]
+# carts = detect_carts(m)
+# pos, t = detect_crash(m, carts, True)
+# print(pos.x, pos.y, t)
+
+# part2
 m = [list(line) for line in lines]
 carts = detect_carts(m)
-pos, t = detect_crash(m, carts)
+pos, t = detect_crash(m, carts, False)
 print(pos.x, pos.y, t)
