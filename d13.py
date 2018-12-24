@@ -130,7 +130,7 @@ def print_map(m: List[List[str]], carts: List[Cart]):
     print()
 
 
-def detect_crash(m: List[List[str]], carts: List[Cart], stop_on_first: bool) -> Pos:
+def detect_crash(m: List[List[str]], carts: List[Cart], stop_on_first: bool) -> Tuple[Pos, int]:
     for cart in carts:
         m[cart.pos.y][cart.pos.x] = "-" if cart.direction in ["<", ">"] else "|"
     # print_map(m, carts)
@@ -192,8 +192,6 @@ def detect_crash(m: List[List[str]], carts: List[Cart], stop_on_first: bool) -> 
         # print_map(m, carts)
         if len(carts) == 1:
             return carts[0].pos, time                            
-
-    return None
 
 
 # part1
